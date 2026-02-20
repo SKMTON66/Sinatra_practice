@@ -1,10 +1,10 @@
-<h1> メモ詳細🍑</h1>
+<h1>メモ詳細</h1>
 <h2>
-<%= @memo[:title]%>
+<%= h(@memo[:title])%>
 </h2>
 
 <h2>
-<%= @memo[:content]%>
+<%= h(@memo[:content])%>
 </h2>
 
 <button onclick="location.href='/'">トップページ</button>
