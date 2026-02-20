@@ -18,6 +18,12 @@ get '/memos/:id' do
   erb :show_memo
 end
 
+get '/memos/:id/edit' do
+  file_path = "./json_files/#{params[:id]}.json"
+  @memo = JSON.parse(File.read(file_path), symbolize_names: true)
+  erb :edit_memo
+end
+
 get '/memos' do
   dir = Pathname.new('./json_files')
   json_files = dir.glob('*.json')
@@ -35,4 +41,12 @@ post '/memos' do
   file.write("#{json_file}")
   file.close
   redirect '/memos'
+end
+
+patch '/memos/:id' do
+  json_file = JSON.pretty_generate(params)
+  file = File.open("./json_files/#{params[:id]}.json", 'w')
+  file.write("#{json_file}")
+  file.close
+  redirect "/memos/#{params[:id]}"
 end
