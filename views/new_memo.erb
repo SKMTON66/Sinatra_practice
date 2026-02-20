@@ -1,7 +1,8 @@
-<h1> 新規メモ🍑</h1>
+<h1> 新規メモ追加🍑</h1>
 <form action="/memos" method="post">
 <input type="text" name="title" placeholder="タイトル"><br>
 <textarea name="content" placeholder="内容を入力してください"></textarea><br>
+<input type="hidden" name="id" value="<%= SecureRandom.uuid %>">
 <input type="submit" value="保存">
 </form>
 <button onclick="location.href='/'">トップページ</button>
