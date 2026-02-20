@@ -1,12 +1,35 @@
+# frozen_string_literal: true
+
 require 'sinatra'
 require 'sinatra/reloader'
 require 'json'
 require 'pathname'
 require 'securerandom'
 
+JSON_DIR_PATH = './json_files/'
+
 helpers do
   def h(text)
     Rack::Utils.escape_html(text)
+  end
+
+  def build_file_path(params)
+    "#{JSON_DIR_PATH}#{params[:id]}.json"
+  end
+
+  def make_json_file(params)
+    memo = {
+      "title": params[:title],
+      "content": params[:content],
+      "id": params[:id]
+    }
+    File.open(build_file_path(params), 'w') do |file|
+      file.write(JSON.pretty_generate(memo))
+    end
+  end
+
+  def parse_json(params)
+    JSON.parse(File.read(build_file_path(params)), symbolize_names: true)
   end
 end
 
@@ -18,46 +41,37 @@ get '/new-memo' do
   erb :new_memo
 end
 
-get '/memos/:id' do
-  file_path = "./json_files/#{params[:id]}.json"
-  @memo = JSON.parse(File.read(file_path), symbolize_names: true)
-  erb :show_memo
-end
-
-get '/memos/:id/edit' do
-  file_path = "./json_files/#{params[:id]}.json"
-  @memo = JSON.parse(File.read(file_path), symbolize_names: true)
-  erb :edit_memo
-end
-
 get '/memos' do
-  dir = Pathname.new('./json_files')
-  json_files = dir.glob('*.json')
+  directry_path = Pathname.new(JSON_DIR_PATH)
+  json_files = directry_path.glob('*.json')
   @memos = json_files.map do |json_file|
     JSON.parse(json_file.read, symbolize_names: true)
   end
   erb :memos
 end
 
+get '/memos/:id' do
+  @memo = parse_json(params)
+  erb :show_memo
+end
+
+get '/memos/:id/edit' do
+  @memo = parse_json(params)
+  erb :edit_memo
+end
+
 post '/memos' do
-  @title = params[:title]
-  @content = params[:content]
-  json_file = JSON.pretty_generate(params)
-  file = File.open("./json_files/#{params[:id]}.json", 'w')
-  file.write("#{json_file}")
-  file.close
+  params[:id] = SecureRandom.uuid
+  make_json_file(params)
+  redirect '/memos'
+end
+
+delete '/memos/:id' do
+  File.delete(build_file_path(params))
   redirect '/memos'
 end
 
 patch '/memos/:id' do
-  json_file = JSON.pretty_generate(params)
-  file = File.open("./json_files/#{params[:id]}.json", 'w')
-  file.write("#{json_file}")
-  file.close
+  make_json_file(params)
   redirect "/memos/#{params[:id]}"
-end
-
-delete '/memos/:id' do
-  File.delete("./json_files/#{params[:id]}.json")
-  redirect '/memos'
 end
