@@ -1,9 +1,11 @@
-   
-<h1>メモ詳細</h1>
+<h1> メモ詳細🍑</h1>
 <h2>
-  <%= @title %>
+<%= @memo[:title]%>
 </h2>
-<h3>
-  <%= @content %>
-</h3>
+
+<h2>
+<%= @memo[:content]%>
+</h2>
+
 <button onclick="location.href='/'">トップページ</button>
+<button onclick="location.href='/edit-memo'">編集</button>

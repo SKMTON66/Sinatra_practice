@@ -12,10 +12,16 @@ get '/new-memo' do
   erb :new_memo
 end
 
+get '/memos/:id' do
+  file_path = "./json_files/#{params[:id]}.json"
+  @memo = JSON.parse(File.read(file_path), symbolize_names: true)
+  erb :show_memo
+end
+
 get '/memos' do
   dir = Pathname.new('./json_files')
   json_files = dir.glob('*.json')
-  @files_data = json_files.map do |json_file|
+  @memos = json_files.map do |json_file|
     JSON.parse(json_file.read, symbolize_names: true)
   end
   erb :memos

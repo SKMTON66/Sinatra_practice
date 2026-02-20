@@ -1,7 +1,7 @@
 <h1> メモ一覧🍑</h1>
 <ul>
-<% @files_data.each do |file| %>
-<li><%= "#{file[:title]}"%></li>
+<% @memos.each do |memo| %>
+<li><a href=/memos/<%= memo[:id] %>><%= memo[:title]%></a></li>
 <% end %>
 </ul>
 
