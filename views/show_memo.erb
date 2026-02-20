@@ -9,3 +9,7 @@
 
 <button onclick="location.href='/'">トップページ</button>
 <button onclick="location.href='/memos/<%= @memo[:id] %>/edit'">編集</button>
+<form action="/memos/<%= @memo[:id] %>" method="post">
+  <input type="hidden" id="_method" name="_method" value="DELETE">
+  <input type="submit" value="削除">
+</form>

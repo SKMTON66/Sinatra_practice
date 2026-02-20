@@ -50,3 +50,8 @@ patch '/memos/:id' do
   file.close
   redirect "/memos/#{params[:id]}"
 end
+
+delete '/memos/:id' do
+  File.delete("./json_files/#{params[:id]}.json")
+  redirect '/memos'
+end
