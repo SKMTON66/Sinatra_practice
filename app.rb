@@ -5,8 +5,11 @@ require 'sinatra/reloader'
 require 'json'
 require 'pathname'
 require 'securerandom'
+require 'fileutils'
 
 JSON_DIR_PATH = './json_files/'
+
+FileUtils.mkdir_p(JSON_DIR_PATH)
 
 helpers do
   def h(text)
