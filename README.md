@@ -5,10 +5,22 @@
 作業PCの任意のディレクトリに `git clone`してください。
 
 ```zsh
-git clone https://github.com/SKMTON66/Sinatra_practice
+git clone https://github.com/SKMTON66/Sinatra_practice.git
+cd Sinatra_practice
 ```
 
-それから下記のコマンドを実行します。
+下記の手順でコマンドを入力していく
+
+```zsh
+git fetch origin pull/1/head:pr-branch
+```
+
+```zsh
+git switch pr-branch
+```
+
+
+最後に下記のコマンドを実行します。
 
 ```zsh
 bundle install
@@ -16,9 +28,9 @@ bundle install
 
 ## ◎利用方法
 
-`git clone`してきた`Sinatra_practice`ディレクトリ内で下記のコマンドを実行するとSinatraが起動します。
+`Sinatra_practice`ディレクトリ内で下記のコマンドを実行するとSinatraが起動します。
 
-```
+```zsh
 bundle exec ruby app.rb 
 ```
 
