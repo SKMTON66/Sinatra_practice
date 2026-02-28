@@ -1,8 +1,8 @@
 <h1>メモ編集</h1>
 <form action="/memos/<%= @memo[:id] %>" method="post">
   <input type="hidden" id="_method" name="_method" value="PATCH">
-  <input type="text" name="title" placeholder="タイトル" value="<%= @memo[:title] %>" required><br>
-  <textarea name="content" placeholder="内容を入力してください"><%= @memo[:content] %></textarea>
+  <input type="text" name="title" placeholder="タイトル" value="<%= h(@memo[:title]) %>" required><br>
+  <textarea name="content" placeholder="内容を入力してください"><%= h(@memo[:content]) %></textarea>
   <br>
   <input type="hidden" name="id" value="<%= @memo[:id] %>">
   <input type="submit" value="変更">
