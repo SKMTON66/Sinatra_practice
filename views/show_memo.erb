@@ -5,8 +5,8 @@
 <h3>
   <%= h(@memo[:content]) %>
 </h3>
-<button onclick="location.href='/'">トップページ</button>
-<button onclick="location.href='/memos/<%= @memo[:id] %>/edit'">編集</button>
+<a href='/'">トップページ</a>
+<a href='/memos/<%= @memo[:id] %>/edit'">編集</a>
 <form action="/memos/<%= @memo[:id] %>" method="post">
   <input type="hidden" id="_method" name="_method" value="DELETE">
   <input type="submit" value="削除">
