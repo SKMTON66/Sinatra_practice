@@ -20,7 +20,7 @@ helpers do
     "#{JSON_DIR_PATH}#{params[:id]}.json"
   end
 
-  def make_json_file(params)
+  def save_memos(params)
     memo = {
       "title": params[:title],
       "content": params[:content],
@@ -65,7 +65,7 @@ end
 
 post '/memos' do
   params[:id] = SecureRandom.uuid
-  make_json_file(params)
+  save_memos(params)
   redirect '/memos'
 end
 
@@ -75,6 +75,6 @@ delete '/memos/:id' do
 end
 
 patch '/memos/:id' do
-  make_json_file(params)
+  save_memos(params)
   redirect "/memos/#{params[:id]}"
 end
