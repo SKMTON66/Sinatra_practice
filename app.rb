@@ -3,37 +3,34 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'json'
-require 'pathname'
 require 'securerandom'
-require 'fileutils'
 
-JSON_DIR_PATH = './json_files/'
-
-FileUtils.mkdir_p(JSON_DIR_PATH)
+MEMOS_DATA_PATH = './public/memos.json'
 
 helpers do
   def h(text)
     Rack::Utils.escape_html(text)
   end
+end
 
-  def build_file_path(params)
-    "#{JSON_DIR_PATH}#{params[:id]}.json"
-  end
+def get_memo_data(id)
+  memos = load_memos
+  memo = find_memo(memos, id)
+  @id = id
+  @title = memo[:"#{id}"][:title]
+  @content = memo[:"#{id}"][:content]
+end
 
-  def save_memos(params)
-    memo = {
-      "title": params[:title],
-      "content": params[:content],
-      "id": params[:id]
-    }
-    File.open(build_file_path(params), 'w') do |file|
-      file.write(JSON.pretty_generate(memo))
-    end
-  end
+def save_memos(memos)
+  File.open(MEMOS_DATA_PATH, 'w') { it.write(JSON.dump(memos)) }
+end
 
-  def parse_json(params)
-    JSON.parse(File.read(build_file_path(params)), symbolize_names: true)
-  end
+def load_memos
+  JSON.load_file(MEMOS_DATA_PATH, symbolize_names: true)
+end
+
+def find_memo(memos, id)
+  memos.find { it.key?(:"#{id}") }
 end
 
 get '/' do
@@ -45,36 +42,40 @@ get '/new-memo' do
 end
 
 get '/memos' do
-  directry_path = Pathname.new(JSON_DIR_PATH)
-  json_files = directry_path.glob('*.json')
-  @memos = json_files.map do |json_file|
-    JSON.parse(json_file.read, symbolize_names: true)
-  end
+  @memos = load_memos
   erb :memos
 end
 
-get '/memos/:id' do
-  @memo = parse_json(params)
+get '/memos/:id' do |id|
+  get_memo_data(id)
   erb :show_memo
 end
 
-get '/memos/:id/edit' do
-  @memo = parse_json(params)
+get '/memos/:id/edit' do |id|
+  get_memo_data(id)
   erb :edit_memo
 end
 
 post '/memos' do
+  memos = load_memos
   params[:id] = SecureRandom.uuid
-  save_memos(params)
+  memo = { params[:id] => { title: params[:title], content: params[:content] } }
+  memos << memo
+  save_memos(memos)
+  redirect "/memos/#{params[:id]}"
+end
+
+delete '/memos/:id' do |id|
+  memos = load_memos
+  memos.reject! { it.key?(:"#{id}") }
+  save_memos(memos)
   redirect '/memos'
 end
 
-delete '/memos/:id' do
-  File.delete(build_file_path(params))
-  redirect '/memos'
-end
-
-patch '/memos/:id' do
-  save_memos(params)
+patch '/memos/:id' do |id|
+  memos = load_memos
+  memo = find_memo(memos, id)
+  memo[:"#{id}"] = { title: params[:title], content: params[:content] }
+  save_memos(memos)
   redirect "/memos/#{params[:id]}"
 end
