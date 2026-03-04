@@ -1,8 +1,7 @@
 <h1>メモ一覧</h1>
 <ul>
-  <% @memos.each do |memo| %>
-    <% id = memo.keys[0] %>
-    <li><a href="/memos/<%= id %>"><%= h(memo[id][:title]) %></a></li>
+  <% @memos.each do |id, memo| %>
+    <li><a href="/memos/<%= id %>"><%= h(memo[:title]) %></a></li>
   <% end %>
 </ul>
 <a href='/new-memo'>メモ新規追加</a>

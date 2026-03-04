@@ -13,14 +13,6 @@ helpers do
   end
 end
 
-def get_memo_data(id)
-  memos = load_memos
-  memo = find_memo(memos, id)
-  @id = id
-  @title = memo[:"#{id}"][:title]
-  @content = memo[:"#{id}"][:content]
-end
-
 def save_memos(memos)
   File.open(MEMOS_DATA_PATH, 'w') { it.write(JSON.dump(memos)) }
 end
@@ -29,8 +21,11 @@ def load_memos
   JSON.load_file(MEMOS_DATA_PATH, symbolize_names: true)
 end
 
-def find_memo(memos, id)
-  memos.find { it.key?(:"#{id}") }
+def fetch_memo_data(id)
+  memos = load_memos
+  @id = id
+  @title = memos[id.to_sym][:title]
+  @content = memos[id.to_sym][:content]
 end
 
 get '/' do
@@ -47,35 +42,33 @@ get '/memos' do
 end
 
 get '/memos/:id' do |id|
-  get_memo_data(id)
+  fetch_memo_data(id)
   erb :show_memo
 end
 
 get '/memos/:id/edit' do |id|
-  get_memo_data(id)
+  fetch_memo_data(id)
   erb :edit_memo
 end
 
 post '/memos' do
   memos = load_memos
-  params[:id] = SecureRandom.uuid
-  memo = { params[:id] => { title: params[:title], content: params[:content] } }
-  memos << memo
+  id = SecureRandom.uuid
+  memos[id] = { title: params[:title], content: params[:content] }
   save_memos(memos)
-  redirect "/memos/#{params[:id]}"
+  redirect "/memos/#{id}"
 end
 
 delete '/memos/:id' do |id|
   memos = load_memos
-  memos.reject! { it.key?(:"#{id}") }
+  memos.delete(id.to_sym)
   save_memos(memos)
   redirect '/memos'
 end
 
 patch '/memos/:id' do |id|
   memos = load_memos
-  memo = find_memo(memos, id)
-  memo[:"#{id}"] = { title: params[:title], content: params[:content] }
+  memos[id.to_sym] = { title: params[:title], content: params[:content] }
   save_memos(memos)
-  redirect "/memos/#{params[:id]}"
+  redirect "/memos/#{id}"
 end
