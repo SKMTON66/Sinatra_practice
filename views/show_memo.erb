@@ -1,0 +1,13 @@
+<h1>メモ詳細</h1>
+<h2>
+  <%= h(@title) %>
+</h2>
+<h3>
+  <%= h(@content) %>
+</h3>
+<a href='/'>トップページ</a>
+<a href='/memos/<%= @id %>/edit'>編集</a>
+<form action="/memos/<%= @id %>" method="post">
+  <input type="hidden" id="_method" name="_method" value="DELETE">
+  <input type="submit" value="削除">
+</form>

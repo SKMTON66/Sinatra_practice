@@ -1,0 +1,10 @@
+<h1>メモ編集</h1>
+<form action="/memos/<%= @id %>" method="post">
+  <input type="hidden" id="_method" name="_method" value="PATCH">
+  <input type="text" name="title" placeholder="タイトル" value="<%= h(@title) %>" required><br>
+  <textarea name="content" placeholder="内容を入力してください"><%= h(@content) %></textarea>
+  <br>
+  <input type="hidden" name="id" value="<%= @id %>">
+  <input type="submit" value="変更">
+</form>
+<a href='/'>トップページ</a>
