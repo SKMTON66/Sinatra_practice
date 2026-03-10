@@ -6,6 +6,7 @@ group :development do
   gem 'erb_lint', require: false
   gem 'rubocop-fjord', require: false
 end
+gem 'pg'
 gem 'puma'
 gem 'rackup'
 gem 'sinatra'

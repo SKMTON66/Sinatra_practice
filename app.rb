@@ -4,8 +4,9 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'json'
 require 'securerandom'
+require 'pg'
 
-MEMOS_DATA_PATH = './public/memos.json'
+DB_CONNECTION = PG.connect(dbname: 'sinatra_practice')
 
 helpers do
   def h(text)
@@ -13,19 +14,12 @@ helpers do
   end
 end
 
-def save_memos(memos)
-  File.open(MEMOS_DATA_PATH, 'w') { it.write(JSON.dump(memos)) }
-end
-
-def load_memos
-  JSON.load_file(MEMOS_DATA_PATH, symbolize_names: true)
-end
-
 def fetch_memo_data(id)
-  memos = load_memos
-  @id = id
-  @title = memos[id.to_sym][:title]
-  @content = memos[id.to_sym][:content]
+  db_result = DB_CONNECTION.exec("SELECT * FROM memo WHERE id = #{id}")
+  memo = db_result[0]
+  @id = memo['id']
+  @title = memo['title']
+  @content = memo['content']
 end
 
 get '/' do
@@ -37,7 +31,7 @@ get '/new-memo' do
 end
 
 get '/memos' do
-  @memos = load_memos
+  @db_result = DB_CONNECTION.exec('SELECT * FROM memo')
   erb :memos
 end
 
@@ -52,23 +46,16 @@ get '/memos/:id/edit' do |id|
 end
 
 post '/memos' do
-  memos = load_memos
-  id = SecureRandom.uuid
-  memos[id] = { title: params[:title], content: params[:content] }
-  save_memos(memos)
-  redirect "/memos/#{id}"
+  DB_CONNECTION.exec("INSERT INTO memo (title, content) VALUES ('#{params[:title]}', '#{params[:content]}')")
+  redirect '/memos'
 end
 
 delete '/memos/:id' do |id|
-  memos = load_memos
-  memos.delete(id.to_sym)
-  save_memos(memos)
+  DB_CONNECTION.exec("DELETE FROM memo WHERE id = #{id}")
   redirect '/memos'
 end
 
 patch '/memos/:id' do |id|
-  memos = load_memos
-  memos[id.to_sym] = { title: params[:title], content: params[:content] }
-  save_memos(memos)
+  DB_CONNECTION.exec("UPDATE memo SET title = '#{params[:title]}', content = '#{params[:content]}' WHERE id = #{id}")
   redirect "/memos/#{id}"
 end
