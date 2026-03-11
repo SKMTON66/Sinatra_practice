@@ -15,8 +15,7 @@ helpers do
 end
 
 def fetch_memo_data(id)
-  db_result = DB_CONNECTION.exec("SELECT * FROM memo WHERE id = #{id}")
-  memo = db_result[0]
+  memo = DB_CONNECTION.exec_params('SELECT * FROM memo WHERE id = $1', [id])[0]
   @id = memo['id']
   @title = memo['title']
   @content = memo['content']
@@ -31,7 +30,7 @@ get '/new-memo' do
 end
 
 get '/memos' do
-  @db_result = DB_CONNECTION.exec('SELECT * FROM memo')
+  @memos = DB_CONNECTION.exec('SELECT * FROM memo')
   erb :memos
 end
 
@@ -46,16 +45,16 @@ get '/memos/:id/edit' do |id|
 end
 
 post '/memos' do
-  DB_CONNECTION.exec("INSERT INTO memo (title, content) VALUES ('#{params[:title]}', '#{params[:content]}')")
+  DB_CONNECTION.exec_params('INSERT INTO memo (title, content) VALUES ($1, $2)', [params[:title], params[:content]])
   redirect '/memos'
 end
 
 delete '/memos/:id' do |id|
-  DB_CONNECTION.exec("DELETE FROM memo WHERE id = #{id}")
+  DB_CONNECTION.exec_params('DELETE FROM memo WHERE id = $1', [id])
   redirect '/memos'
 end
 
 patch '/memos/:id' do |id|
-  DB_CONNECTION.exec("UPDATE memo SET title = '#{params[:title]}', content = '#{params[:content]}' WHERE id = #{id}")
+  DB_CONNECTION.exec_params('UPDATE memo SET title = $1, content = $2 WHERE id = $3', [params[:title], params[:content], id])
   redirect "/memos/#{id}"
 end

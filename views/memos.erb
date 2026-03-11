@@ -1,6 +1,6 @@
 <h1>メモ一覧</h1>
 <ul>
-  <% @db_result.each do |memo| %>
+  <% @memos.each do |memo| %>
     <li><a href="/memos/<%= memo["id"] %>"><%= h(memo["title"]) %></a></li>
   <% end %>
 </ul>
