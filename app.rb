@@ -4,8 +4,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'json'
 require 'securerandom'
-
-MEMOS_DATA_PATH = './public/memos.json'
+require 'pg'
 
 helpers do
   def h(text)
@@ -13,19 +12,25 @@ helpers do
   end
 end
 
-def save_memos(memos)
-  File.open(MEMOS_DATA_PATH, 'w') { it.write(JSON.dump(memos)) }
+def save_memo(mode:, params:)
+  case mode
+  when 'add'
+    load_memos.exec_params('INSERT INTO memo (title, content) VALUES ($1, $2) RETURNING id', [params[:title], params[:content]])
+  when 'edit'
+    load_memos.exec_params('UPDATE memo SET title = $1, content = $2 WHERE id = $3', [params[:title], params[:content], params[:id]])
+  end
 end
 
 def load_memos
-  JSON.load_file(MEMOS_DATA_PATH, symbolize_names: true)
+  @load_memos ||= PG.connect(dbname: 'sinatra_practice')
+end
+
+def delete_memo(id)
+  load_memos.exec_params('DELETE FROM memo WHERE id = $1', [id])
 end
 
 def fetch_memo_data(id)
-  memos = load_memos
-  @id = id
-  @title = memos[id.to_sym][:title]
-  @content = memos[id.to_sym][:content]
+  @memo = load_memos.exec_params('SELECT * FROM memo WHERE id = $1', [id])[0]
 end
 
 get '/' do
@@ -37,7 +42,7 @@ get '/new-memo' do
 end
 
 get '/memos' do
-  @memos = load_memos
+  @memos = load_memos.exec('SELECT * FROM memo')
   erb :memos
 end
 
@@ -52,23 +57,16 @@ get '/memos/:id/edit' do |id|
 end
 
 post '/memos' do
-  memos = load_memos
-  id = SecureRandom.uuid
-  memos[id] = { title: params[:title], content: params[:content] }
-  save_memos(memos)
+  id = save_memo(mode: 'add', params: params)[0]['id']
   redirect "/memos/#{id}"
 end
 
 delete '/memos/:id' do |id|
-  memos = load_memos
-  memos.delete(id.to_sym)
-  save_memos(memos)
+  delete_memo(id)
   redirect '/memos'
 end
 
 patch '/memos/:id' do |id|
-  memos = load_memos
-  memos[id.to_sym] = { title: params[:title], content: params[:content] }
-  save_memos(memos)
+  save_memo(mode: 'edit', params: params)
   redirect "/memos/#{id}"
 end
