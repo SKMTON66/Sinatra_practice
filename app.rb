@@ -12,11 +12,10 @@ helpers do
   end
 end
 
-def save_memo(mode:, params:)
-  case mode
-  when 'add'
+def save_memo(params)
+  if params[:id].nil?
     load_memos.exec_params('INSERT INTO memo (title, content) VALUES ($1, $2) RETURNING id', [params[:title], params[:content]])
-  when 'edit'
+  else
     load_memos.exec_params('UPDATE memo SET title = $1, content = $2 WHERE id = $3', [params[:title], params[:content], params[:id]])
   end
 end
@@ -57,7 +56,7 @@ get '/memos/:id/edit' do |id|
 end
 
 post '/memos' do
-  id = save_memo(mode: 'add', params: params)[0]['id']
+  id = save_memo(params)[0]['id']
   redirect "/memos/#{id}"
 end
 
@@ -67,6 +66,6 @@ delete '/memos/:id' do |id|
 end
 
 patch '/memos/:id' do |id|
-  save_memo(mode: 'edit', params: params)
+  save_memo(params)
   redirect "/memos/#{id}"
 end
