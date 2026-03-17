@@ -9,21 +9,29 @@ git clone https://github.com/SKMTON66/Sinatra_practice.git
 cd Sinatra_practice
 ```
 
-下記の手順でコマンドを入力していく
+下記のコマンドを入力
 
 ```zsh
-git fetch origin pull/1/head:pr-branch
+git switch db-dev-branch
 ```
-
-```zsh
-git switch pr-branch
-```
-
 
 最後に下記のコマンドを実行します。
 
 ```zsh
 bundle install
+```
+
+## ◎下準備
+
+[PostgreSQL](https://www.postgresql.org/)をhomebrewを使ってインストールする。(postgresql@18 で動作確認済)
+
+下記の手順でコマンドを実行していく
+```zsh
+brew services start postgresql@18 #インストールしたバージョンを指定
+```
+
+```zsh
+ruby create_db_and_table.rb
 ```
 
 ## ◎利用方法
